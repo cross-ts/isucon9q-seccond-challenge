@@ -50,6 +50,7 @@ module Isucari
     set :root, File.join(__dir__, '..', '..')
     set :session_secret, 'tagomoris'
     set :sessions, 'key' => 'isucari_session', 'expire_after' => 3600
+    enable :sessions
 
     helpers do
       def db
