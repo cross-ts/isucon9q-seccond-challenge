@@ -1,14 +1,17 @@
 require 'json'
 require 'uri'
 require 'net/http'
+require 'concurrent'
 
 module Isucari
   class API
+    include Concurrent::Async
     class Error < StandardError; end
 
     ISUCARI_API_TOKEN = 'Bearer 75ugk2m37a750fwir5xr-22l6h4wmue1bwrubzwd0'
 
     def initialize
+      super()
       @user_agent = 'isucon9-qualify-webapp'
     end
 

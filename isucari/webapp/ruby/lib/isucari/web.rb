@@ -4,6 +4,7 @@ require 'sinatra/base'
 require 'mysql2'
 require 'mysql2-cs-bind'
 require 'bcrypt'
+require 'concurrent-ruby'
 require 'isucari/api'
 
 module Isucari
@@ -635,15 +636,17 @@ module Isucari
         halt_with_error 500, 'db error'
       end
 
+      shipment = api_client.async.shipment_create(get_shipment_service_url, to_address: buyer['address'], to_name: buyer['account_name'], from_address: seller['address'], from_name: seller['account_name'])
+      payment = api_client.async.payment_token(get_payment_service_url, shop_id: PAYMENT_SERVICE_ISUCARI_SHOPID, token: token, api_key: PAYMENT_SERVICE_ISUCARI_APIKEY, price: target_item['price'])
       begin
-        scr = api_client.shipment_create(get_shipment_service_url, to_address: buyer['address'], to_name: buyer['account_name'], from_address: seller['address'], from_name: seller['account_name'])
+        scr = shipment.wait.value
       rescue
         db.query('ROLLBACK')
         halt_with_error 500, 'failed to request to shipment service'
       end
 
       begin
-        pstr = api_client.payment_token(get_payment_service_url, shop_id: PAYMENT_SERVICE_ISUCARI_SHOPID, token: token, api_key: PAYMENT_SERVICE_ISUCARI_APIKEY, price: target_item['price'])
+        pstr = payment.wait.value
       rescue
         db.query('ROLLBACK')
         halt_with_error 500, 'payment service is failed'
