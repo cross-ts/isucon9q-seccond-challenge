@@ -281,15 +281,15 @@ module Isucari
       items = if item_id > 0 && created_at > 0
         # paging
         begin
-          db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM `items` INNER JOIN users ON items.seller_id = users.id WHERE (`items.seller_id` = ? OR `items.buyer_id` = ?) AND (`items.created_at` < ?  OR (`items.created_at` <= ? AND `items.id` < ?)) ORDER BY `items.created_at` DESC, `items.id` DESC LIMIT #{TRANSACTIONS_PER_PAGE + 1}", user['id'], user['id'], Time.at(created_at), Time.at(created_at), item_id)
-        rescue
+          db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM items INNER JOIN users ON items.seller_id = users.id WHERE (items.seller_id = ? OR items.buyer_id = ?) AND (items.created_at < ?  OR (items.created_at <= ? AND items.id < ?)) ORDER BY items.created_at DESC, items.id DESC LIMIT #{TRANSACTIONS_PER_PAGE + 1}", user['id'], user['id'], Time.at(created_at), Time.at(created_at), item_id)
+        rescue => e
           db.query('ROLLBACK')
           halt_with_error 500, 'db error'
         end
       else
         # 1st page
         begin
-          db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM `items` INNER JOIN users ON items.seller_id = users.id WHERE (`seller_id` = ? OR `buyer_id` = ?) ORDER BY `created_at` DESC, `id` DESC LIMIT #{TRANSACTIONS_PER_PAGE + 1}", user['id'], user['id'] )
+          db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM items INNER JOIN users ON items.seller_id = users.id WHERE (items.seller_id = ? OR items.buyer_id = ?) ORDER BY items.created_at DESC, items.id DESC LIMIT #{TRANSACTIONS_PER_PAGE + 1}", user['id'], user['id'] )
         rescue
           db.query('ROLLBACK')
           halt_with_error 500, 'db error'
