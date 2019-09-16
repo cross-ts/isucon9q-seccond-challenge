@@ -22,5 +22,6 @@ isucari/bin
 isucari/initial-data
 */upload/*
 */images/*
+.tig_history
 
 *.swp
