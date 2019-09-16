@@ -601,8 +601,14 @@ module Isucari
         halt_with_error 403, '自分の商品は買えません'
       end
 
+      category = get_category_by_id(target_item['category_id'])
+      if category.nil?
+        db.query('ROLLBACK')
+        halt_with_error 500, 'category id error'
+      end
+
       begin
-        seller = db.xquery('SELECT * FROM `users` WHERE `id` = ? FOR UPDATE', target_item['seller_id']).first
+        seller = db.xquery('SELECT * FROM `users` WHERE `id` = ?', target_item['seller_id']).first
 
         if seller.nil?
           db.query('ROLLBACK')
@@ -611,12 +617,6 @@ module Isucari
       rescue
         db.query('ROLLBACK')
         halt_with_error 500, 'db error'
-      end
-
-      category = get_category_by_id(target_item['category_id'])
-      if category.nil?
-        db.query('ROLLBACK')
-        halt_with_error 500, 'category id error'
       end
 
       begin
