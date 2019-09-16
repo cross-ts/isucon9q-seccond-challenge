@@ -179,10 +179,10 @@ module Isucari
 
       items = if item_id > 0 && created_at > 0
         # paging
-        db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM `items` INNER JOIN users ON items.seller_id = users.id WHERE `status` IN (?, ?) AND (`created_at` < ?  OR (`created_at` <= ? AND `id` < ?)) ORDER BY `created_at` DESC, `id` DESC LIMIT #{ITEMS_PER_PAGE + 1}", ITEM_STATUS_ON_SALE, ITEM_STATUS_SOLD_OUT, Time.at(created_at), Time.at(created_at), item_id)
+        db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM `items` INNER JOIN users ON items.seller_id = users.id WHERE items.`status` IN (?, ?) AND (items.`created_at` < ?  OR (items.`created_at` <= ? AND items.`id` < ?)) ORDER BY items.`created_at` DESC, items.`id` DESC LIMIT #{ITEMS_PER_PAGE + 1}", ITEM_STATUS_ON_SALE, ITEM_STATUS_SOLD_OUT, Time.at(created_at), Time.at(created_at), item_id)
       else
         # 1st page
-        db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM `items` INNER JOIN users ON items.seller_id = users.id WHERE `status` IN (?, ?) ORDER BY `created_at` DESC, `id` DESC LIMIT #{ITEMS_PER_PAGE + 1}", ITEM_STATUS_ON_SALE, ITEM_STATUS_SOLD_OUT)
+        db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM `items` INNER JOIN users ON items.seller_id = users.id WHERE items.`status` IN (?, ?) ORDER BY items.`created_at` DESC, items.`id` DESC LIMIT #{ITEMS_PER_PAGE + 1}", ITEM_STATUS_ON_SALE, ITEM_STATUS_SOLD_OUT)
       end
 
       item_simples = items.map do |item|
