@@ -403,15 +403,19 @@ module Isucari
 
       items = if item_id > 0 && created_at > 0
         # paging
-        db.xquery("SELECT * FROM `items` WHERE `seller_id` = ? AND `status` IN (?, ?, ?) AND `created_at` <= ? AND `id` < ? ORDER BY `created_at` DESC, `id` DESC LIMIT #{ITEMS_PER_PAGE + 1}", user_simple['id'], ITEM_STATUS_ON_SALE, ITEM_STATUS_TRADING, ITEM_STATUS_SOLD_OUT, Time.at(created_at), item_id)
+        db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM items INNER JOIN users ON items.seller_id = users.id WHERE items.seller_id = ? AND items.status IN (?, ?, ?) AND items.created_at <= ? AND items.id < ? ORDER BY items.created_at DESC, items.id DESC LIMIT #{ITEMS_PER_PAGE + 1}", user_simple['id'], ITEM_STATUS_ON_SALE, ITEM_STATUS_TRADING, ITEM_STATUS_SOLD_OUT, Time.at(created_at), item_id)
       else
         # 1st page
-        db.xquery("SELECT * FROM `items` WHERE `seller_id` = ? AND `status` IN (?, ?, ?) ORDER BY `created_at` DESC, `id` DESC LIMIT #{ITEMS_PER_PAGE + 1}", user_simple['id'], ITEM_STATUS_ON_SALE, ITEM_STATUS_TRADING, ITEM_STATUS_SOLD_OUT)
+        db.xquery("SELECT items.*, users.account_name, users.num_sell_items FROM items INNER JOIN users ON items.seller_id = users.id WHERE items.seller_id = ? AND items.status IN (?, ?, ?) ORDER BY items.created_at DESC, items.id DESC LIMIT #{ITEMS_PER_PAGE + 1}", user_simple['id'], ITEM_STATUS_ON_SALE, ITEM_STATUS_TRADING, ITEM_STATUS_SOLD_OUT)
       end
 
       item_simples = items.map do |item|
-        seller = get_user_simple_by_id(item['seller_id'])
-        halt_with_error 404, 'seller not found' if seller.nil?
+        halt_with_error 404, 'seller not found' if item['account_name'].nil?
+        seller = {
+          'id' => item['seller_id'],
+          'account_name' => item['account_name'],
+          'num_sell_items' => item['num_sell_items']
+        }
 
         category = get_category_by_id(item['category_id'])
         halt_with_error 404, 'category not found' if category.nil?
