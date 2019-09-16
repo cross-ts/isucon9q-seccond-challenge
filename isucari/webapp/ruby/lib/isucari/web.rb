@@ -38,7 +38,7 @@ module Isucari
     ITEMS_PER_PAGE = 48
     TRANSACTIONS_PER_PAGE = 10
 
-    BCRYPT_COST = 10
+    BCRYPT_COST = 4
 
     configure :development do
       require 'sinatra/reloader'
@@ -165,7 +165,7 @@ module Isucari
 
       response = {
         # キャンペーン実施時には還元率の設定を返す。詳しくはマニュアルを参照のこと。
-        'campaign' => 1,
+        'campaign' => 2,
         # 実装言語を返す
         'language' => 'ruby',
       }
